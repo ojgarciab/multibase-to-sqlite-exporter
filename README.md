@@ -15,21 +15,25 @@ All database files are stored in a directory with the `.dbs` extension.
 
 Inside this directory, a series of system files are created, which start with `sys*` and contain tables with system information:
 
-| data file      | index file     |
-|----------------|----------------|
-| syscolattr.dat | syscolattr.idx |
-| syscolauth.dat | syscolauth.idx |
-| syscollati.dat | syscollati.idx |
-| syscolumns.dat | syscolumns.idx |
-| sysdepend.dat  | sysdepend.idx  |
-| sysforeign.dat | sysforeign.idx |
-| sysindexes.dat | sysindexes.idx |
-| sysremote.dat  | sysremote.idx  |
-| syssynonym.dat | syssynonym.idx |
-| systabauth.dat | systabauth.idx |
-| systables.dat  | systables.idx  |
-| sysusers.dat   | sysusers.idx   |
-| sysviews.dat   | sysviews.idx   |
+| tabid | data file      | index file     |
+|-------|----------------|----------------|
+| 1     | systables.dat  | systables.idx  |
+| 2     | syscolumns.dat | syscolumns.idx |
+| 3     | sysindexes.dat | sysindexes.idx |
+| 4¹    | systabauth.dat | systabauth.idx |
+| 5¹    | syscolauth.dat | syscolauth.idx |
+| 7     | sysusers.dat   | sysusers.idx   |
+| 9¹    | syssynonym.dat | syssynonym.idx |
+| 10    | sysforeign.dat | sysforeign.idx |
+| -²    | syscolattr.dat | syscolattr.idx |
+| -²    | syscollati.dat | syscollati.idx |
+| -²    | sysdepend.dat  | sysdepend.idx  |
+| -²    | sysremote.dat  | sysremote.idx  |
+| -²    | sysviews.dat   | sysviews.idx   |
+
+* ¹ This identifier has been estimated based on the table's field names.
+* ² I have not been able to identify the table identifier from the fields stored in the `syscolumns` table. The tables with identifiers 6, 8, 11, 12, and 17 still need to be identified.
+
 
 The files that contain table data have the extension `*.dat`, and for each table, a file with the extension `*.idx` is created that contains indexed table content information. It is beyond the scope of this tool to interpret index files.
 
