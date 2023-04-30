@@ -31,9 +31,8 @@ Inside this directory, a series of system files are created, which start with `s
 | -²    | sysremote.dat  | sysremote.idx  |
 | -²    | sysviews.dat   | sysviews.idx   |
 
-* ¹ This identifier has been estimated based on the table's field names.
-* ² I have not been able to identify the table identifier from the fields stored in the `syscolumns` table. The tables with identifiers 6, 8, 11, 12, and 17 still need to be identified.
-
+1. This identifier has been estimated based on the table's field names.
+2. I have not been able to identify the table identifier from the fields stored in the `syscolumns` table. The tables with identifiers 6, 8, 11, 12, and 17 still need to be identified.
 
 The files that contain table data have the extension `*.dat`, and for each table, a file with the extension `*.idx` is created that contains indexed table content information. It is beyond the scope of this tool to interpret index files.
 
@@ -54,12 +53,13 @@ Data types represented in python's [`unpack()`](https://docs.python.org/3/librar
 | 0    | CHAR       | 000s   |
 | 1    | SMALLINT   | h/H    |
 | 2    | INTEGER    | l/L    |
-| 3    | TIME       | --     |
-| 5    | DECIMAL    | --     |
+| 3    | TIME       | -²     |
+| 5    | DECIMAL    | -²     |
 | 6    | SERIAL     | L      |
-| 7    | DATE       | --     |
+| 7    | DATE       | -²     |
 
-¹ There may be more data types that have not yet been found and analyzed in the files we have for that purpose.
+1. There may be more data types that have not yet been found and analyzed in the files we have for that purpose.
+2. I have not yet needed to decode this type of field. I will update the table when I have done so.
 
 ## `systables.dat`
 Currently, the string `">18s8s64sL37s1s"` is used to obtain the information. The format string `">18s8s64sL37s1s"` breaks down as follows:
@@ -90,7 +90,7 @@ Currently, the string `">18s8s64sL37s1s"` is used to obtain the information. The
 ## `syscolumns.dat`
 Currently, the string `">18sLHHH1s"` is used to obtain the information. The format string `">18sLHHH1s"` breaks down as follows:
 
-- `colname` (`18s`): column name.
+- `colname` (`CHAR(18)`): column name.
 - `tabid` (`SERIAL`): sequential identification number of the table assigned by the system.
 - `colno` (`SMALLINT`): column number, starting from 1.
 - `coltype` (`SMALLINT`): column type.
