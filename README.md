@@ -15,19 +15,21 @@ All database files are stored in a directory with the `.dbs` extension.
 
 Inside this directory, a series of system files are created, which start with `sys*` and contain tables with system information:
 
-- `syscolattr.dat`
-- `syscolauth.dat`
-- `syscollati.dat`
-- `syscolumns.dat`
-- `sysdepend.dat`
-- `sysforeign.dat`
-- `sysindexes.dat`
-- `sysremote.dat`
-- `syssynonym.dat`
-- `systabauth.dat`
-- `systables.dat`
-- `sysusers.dat`
-- `sysviews.dat`
+| data file      | index file     |
+|----------------|----------------|
+| syscolattr.dat | syscolattr.idx |
+| syscolauth.dat | syscolauth.idx |
+| syscollati.dat | syscollati.idx |
+| syscolumns.dat | syscolumns.idx |
+| sysdepend.dat  | sysdepend.idx  |
+| sysforeign.dat | sysforeign.idx |
+| sysindexes.dat | sysindexes.idx |
+| sysremote.dat  | sysremote.idx  |
+| syssynonym.dat | syssynonym.idx |
+| systabauth.dat | systabauth.idx |
+| systables.dat  | systables.idx  |
+| sysusers.dat   | sysusers.idx   |
+| sysviews.dat   | sysviews.idx   |
 
 The files that contain table data have the extension `*.dat`, and for each table, a file with the extension `*.idx` is created that contains indexed table content information. It is beyond the scope of this tool to interpret index files.
 
@@ -37,3 +39,56 @@ The files that contain table data have the extension `*.dat`, and for each table
 - [x] Loading of field information stored in the `syscolumns.dat` file.
 - [ ] Loading of data from `*.dat` tables.
 - [ ] Data export.
+
+# File Format
+Big-endian byte ordering places the most significant byte first. This method is used in IBM® mainframe processors. `>` indicates that the binary string is in big-endian format (higher-order bytes are stored first).
+
+Data types represented in python's [`unpack()`](https://docs.python.org/3/library/struct.html#format-characters) format¹:
+
+| Code | Name       | Format |
+|------|------------|--------|
+| 0    | CHAR       | 000s   |
+| 1    | SMALLINT   | h/H    |
+| 2    | INTEGER    | l/L    |
+| 3    | TIME       | --     |
+| 5    | DECIMAL    | --     |
+| 6    | SERIAL     | L      |
+| 7    | DATE       | --     |
+
+¹ There may be more data types that have not yet been found and analyzed in the files we have for that purpose.
+
+## `systables.dat`
+Currently, the string `">18s8s64sL37s1s"` is used to obtain the information. The format string `">18s8s64sL37s1s"` breaks down as follows:
+
+- `tabname` (`CHAR(18)`): name of table, view, synonym, or sequence.
+- `owner` (`CHAR(8)`): table owner (`system` by default).
+- `dirpath` (`CHAR(64)`): name of the file that physically stores the data.
+- `tabid` (`SERIAL`): sequential identification number of the table assigned by the system, from 150 onwards.
+- `38s`: remaining unknown data pending analysis:
+  - `rowsize`
+  - `ncols`
+  - `nindexes`
+  - `nrows`
+  - `created`
+  - `version`
+  - `tabtype`
+  - `nfkeys`
+  - `part1`
+  - `part2`
+  - `part3`
+  - `part4`
+  - `part5`
+  - `part6`
+  - `part7`
+  - `part8`
+- `\n`: end of record.
+
+## `syscolumns.dat`
+Currently, the string `">18sLHHH1s"` is used to obtain the information. The format string `">18sLHHH1s"` breaks down as follows:
+
+- `colname` (`18s`): column name.
+- `tabid` (`SERIAL`): sequential identification number of the table assigned by the system.
+- `colno` (`SMALLINT`): column number, starting from 1.
+- `coltype` (`SMALLINT`): column type.
+- `collength` (`SMALLINT`): column length.
+- `\n`: end of record.
