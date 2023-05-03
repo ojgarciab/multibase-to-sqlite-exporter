@@ -96,3 +96,11 @@ Currently, the string `">18sLHHH1s"` is used to obtain the information. The form
 - `coltype` (`SMALLINT`): column type.
 - `collength` (`SMALLINT`): column length.
 - `\n`: end of record.
+
+# Useful links
+
+This project started with the idea that Multibase was out of support and it was not possible to find the necessary tools to perform data export. I have located the official website of the product where they even have an evaluation version. Below I share the most interesting links to complete this work:
+
+* Homepage: https://multibase.tech/
+* Link to the evaluation copy: https://multibase.tech/descargas/
+* Multibase, programmer's manual: https://www.base100.com/es/productos/pdf/manuales/multibase/mbprogramador.pdf
