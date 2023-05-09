@@ -9,6 +9,19 @@ To achieve the goal of developing this tool, the following milestones will be fo
 - Generate SQL code by converting Multibase data types to types compatible with SQLite.
 - Read the records of each table in the database to export them to the SQLite database.
 
+# Step-by-step installation
+
+Create the Python virtual environment, activate it, and install dependencies (currently none) by typing the following instructions:
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip3 install -r requirements.txt
+
+Uncompress the file containing the contents of the demonstration database and verify the functionality of the library by typing the following instructions:
+
+    tar jxvf mbdemo.tar.bz2
+    python3 checks.py mbdemo/almacen.dbs/
+
 # Explanation of file structure
 
 All database files are stored in a directory with the `.dbs` extension. 
