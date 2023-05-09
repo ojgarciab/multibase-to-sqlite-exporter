@@ -1,3 +1,6 @@
+# Ignore the decompression path of the demonstration database
+mbdemo/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
