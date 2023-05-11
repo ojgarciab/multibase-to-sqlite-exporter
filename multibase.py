@@ -114,6 +114,10 @@ class MultibaseReader:
         print(f'Format: "{format}", row_size: {row_size}{os.linesep}')
         with open(os.path.join(self.path, filename), 'rb', newline=None) as file:
             while (line := file.read(row_size)):
+                # Check if the record has been deleted (overwritten with null values)
+                if all(byte == 0 for byte in line):
+                    continue
+                # Check if we have read a complete record
                 if len(line) == row_size:
                     row = unpack(format, line)
                     print(row)
