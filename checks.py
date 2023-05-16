@@ -1,7 +1,6 @@
+""" Checks for library functionality """
 
-from struct import unpack
 import argparse
-import os
 from multibase import MultibaseReader
 
 parser = argparse.ArgumentParser(description="Checks for library functionality",
