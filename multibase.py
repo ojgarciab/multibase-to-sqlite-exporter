@@ -8,11 +8,32 @@ from datetime import date, time, timedelta
 
 base_date = date(1899, 12, 31)
 
+class Decimal(float):
+    """Class that stores a decimal value (serializable in JSON)"""
+    number = ""
+    def __new__(cls, binary_data: bytes, collength: int) -> float:
+        cls.number = ""
+        # We extract the necessary data from the header in order to reconstruct the decimal value
+        decimal_places = collength & 255
+        is_positive = binary_data[0] > 127
+        decimal_position = (binary_data[0] & 0b00001111) * 2
+        # We convert each byte into a numerical value with two digits
+        for i in range(1, len(binary_data)):
+            figures = binary_data[i]
+            if not is_positive:
+                figures = 100 - figures
+            cls.number += str(figures)[-2:].zfill(2)
+        # We add the decimal point at the specified position in the header
+        cls.number = cls.number[:decimal_position] + "." + cls.number[decimal_position:decimal_position + decimal_places]
+        if not is_positive:
+            cls.number = "-" + cls.number
+        return float.__new__(cls, cls.number)
+
 class Date(str):
     """Class that stores a date value (serializable in JSON)"""
     date = None
     def __new__(cls, days: int):
-        cls.date = base_date + timedelta(days=days)
+        cls.date = base_date + timedelta(days=days if days < 47483 else 0)
         return str.__new__(cls, cls.date.isoformat())
 
 class Time(str):
@@ -62,19 +83,22 @@ class Column(dict):
     def get_size(self):
         """Calculate the size that the record occupies in memory according to its type."""
         if self.coltype == self.DECIMAL:
+            # The length in bytes is half of the sum of the number of integer and decimal digits, rounded up.
+            length = (self.collength >> 8) + (self.collength % 256)
+            return (length + 1) // 2
+        elif self.coltype > self.DATE:
             raise NotImplementedError("Not implemented")
         return self.collength
 
     def get_format(self):
         """Get the most appropriate unpack format for the record type."""
-        if self.coltype == self.CHAR:
-            return f'{self.collength}s'
         if self.coltype == self.SMALLINT:
             return 'h'
         if self.coltype == self.INTEGER:
             return 'l'
         if self.coltype == self.DECIMAL:
-            raise NotImplementedError("Not implemented")
+            length = (self.collength >> 8) + (self.collength % 256)
+            return f"{str((length + 1) // 2)}s"
         if self.coltype in (
             self.TIME,
             self.SERIAL,
@@ -83,6 +107,8 @@ class Column(dict):
             self.UNKNOWN258
         ):
             return 'L'
+        elif self.coltype > self.DATE:
+            raise NotImplementedError("Not implemented")
         return f'{self.collength}s'
 
 class MultibaseReader:
@@ -209,6 +235,8 @@ class MultibaseReader:
                         row[column.colname] = data[column.colno - 1].decode(
                             encoding='iso-8859-1'
                             ).strip()
+                    elif column.coltype == Column.DECIMAL:
+                        row[column.colname] = Decimal(data[column.colno - 1], column.collength)
                     elif column.coltype == Column.DATE:
                         row[column.colname] = Date(data[column.colno - 1])
                     elif column.coltype == Column.TIME:
