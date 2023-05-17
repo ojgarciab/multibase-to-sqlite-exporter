@@ -66,13 +66,15 @@ Data types represented in python's [`unpack()`](https://docs.python.org/3/librar
 | 0    | CHAR       | 000s   |
 | 1    | SMALLINT   | h/H    |
 | 2    | INTEGER    | l/L    |
-| 3    | TIME       | -²     |
-| 5    | DECIMAL    | -²     |
+| 3    | TIME       | L¹     |
+| 5    | DECIMAL    | L²     |
 | 6    | SERIAL     | L      |
-| 7    | DATE       | -²     |
+| 7    | DATE       | L¹     |
+| >7   | ???        | -³     |
 
-1. There may be more data types that have not yet been found and analyzed in the files we have for that purpose.
-2. I have not yet needed to decode this type of field. I will update the table when I have done so.
+1. Numeric values representing the number of days since 31st December 1899 or the number of seconds since 00:00 AM. Apparently, the first bit of the value represents a null value.
+2. Apparently, it is an unsigned number.
+3. There may be more data types that have not yet been found and analyzed in the files we have for that purpose.
 
 ## `systables.dat`
 Currently, the string `">18s8s64sL37s1s"` is used to obtain the information. The format string `">18s8s64sL37s1s"` breaks down as follows:
