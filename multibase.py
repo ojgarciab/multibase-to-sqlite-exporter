@@ -209,8 +209,8 @@ class MultibaseReader:
         tablename (str): The table name.
         trim (bool): Whether to trim CHAR values or not.
         """
-        if not self.schema[tablename]:
-            raise RuntimeError("The table does not exist or 'build_schema()' has not been called.")
+        if not tablename in self.schema:
+            raise LookupError("The table does not exist or 'build_schema()' has not been called.")
         columns = self.schema[tablename]["columns"]
         # It includes the carriage return at the end of each record
         row_size = 1
