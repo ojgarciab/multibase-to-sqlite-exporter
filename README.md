@@ -33,19 +33,16 @@ Inside this directory, a series of system files are created, which start with `s
 | 1     | systables.dat  | systables.idx  |
 | 2     | syscolumns.dat | syscolumns.idx |
 | 3     | sysindexes.dat | sysindexes.idx |
-| 4¹    | systabauth.dat | systabauth.idx |
-| 5¹    | syscolauth.dat | syscolauth.idx |
+| 4     | systabauth.dat | systabauth.idx |
+| 5     | syscolauth.dat | syscolauth.idx |
+| 6     | sysviews.dat   | sysviews.idx   |
 | 7     | sysusers.dat   | sysusers.idx   |
-| 9¹    | syssynonym.dat | syssynonym.idx |
+| 8     | sysdepend.dat  | sysdepend.idx  |
+| 9     | syssynonym.dat | syssynonym.idx |
 | 10    | sysforeign.dat | sysforeign.idx |
-| -²    | syscolattr.dat | syscolattr.idx |
-| -²    | syscollati.dat | syscollati.idx |
-| -²    | sysdepend.dat  | sysdepend.idx  |
-| -²    | sysremote.dat  | sysremote.idx  |
-| -²    | sysviews.dat   | sysviews.idx   |
-
-1. This identifier has been estimated based on the table's field names.
-2. I have not been able to identify the table identifier from the fields stored in the `syscolumns` table. The tables with identifiers 6, 8, 11, 12, and 17 still need to be identified.
+| 11    | syscolattr.dat | syscolattr.idx |
+| 12    | syscollati.dat | syscollati.idx |
+| 17    | sysremote.dat  | sysremote.idx  |
 
 The files that contain table data have the extension `*.dat`, and for each table, a file with the extension `*.idx` is created that contains indexed table content information. It is beyond the scope of this tool to interpret index files.
 
