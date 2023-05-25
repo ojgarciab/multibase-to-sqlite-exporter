@@ -80,7 +80,8 @@ class Column(dict):
 
     def get_size(self):
         """Calculate the size that the record occupies in memory according to its type."""
-        if self.coltype == self.DECIMAL:
+        coltype = self.coltype & 0xff
+        if coltype == self.DECIMAL:
             # The length in bytes is half of the sum of the number of integer and decimal digits, rounded up.
             length = (self.collength >> 8) + (self.collength % 256)
             return (length + 1) // 2
@@ -90,14 +91,15 @@ class Column(dict):
 
     def get_format(self):
         """Get the most appropriate unpack format for the record type."""
-        if self.coltype == self.SMALLINT:
+        coltype = self.coltype & 0xff
+        if coltype == self.SMALLINT:
             return 'h'
-        if self.coltype == self.INTEGER:
+        if coltype == self.INTEGER:
             return 'l'
-        if self.coltype == self.DECIMAL:
+        if coltype == self.DECIMAL:
             length = (self.collength >> 8) + (self.collength % 256)
             return f"{str((length + 1) // 2)}s"
-        if self.coltype in (
+        if coltype in (
             self.TIME,
             self.SERIAL,
             self.DATE
