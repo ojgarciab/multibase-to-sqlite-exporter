@@ -53,8 +53,6 @@ class Column(dict):
     DECIMAL = 5
     SERIAL = 6
     DATE = 7
-    UNKNOWN262 = 262
-    UNKNOWN258 = 258
 
     colname: str
     tabid: int
@@ -86,8 +84,8 @@ class Column(dict):
             # The length in bytes is half of the sum of the number of integer and decimal digits, rounded up.
             length = (self.collength >> 8) + (self.collength % 256)
             return (length + 1) // 2
-        elif self.coltype > self.DATE:
-            raise NotImplementedError("Not implemented")
+        #elif self.coltype > self.DATE:
+        #    raise NotImplementedError(f"Coltype #{self.coltype} ({self.colname}) not implemented")
         return self.collength
 
     def get_format(self):
@@ -102,13 +100,11 @@ class Column(dict):
         if self.coltype in (
             self.TIME,
             self.SERIAL,
-            self.DATE,
-            self.UNKNOWN262,
-            self.UNKNOWN258
+            self.DATE
         ):
             return 'L'
-        elif self.coltype > self.DATE:
-            raise NotImplementedError("Not implemented")
+        #elif self.coltype > self.DATE:
+        #    raise NotImplementedError(f"Coltype #{self.coltype} ({self.colname}) not implemented")
         return f'{self.collength}s'
 
 class MultibaseReader:
@@ -230,7 +226,7 @@ class MultibaseReader:
                 row = {}
                 data = unpack(format_string, line)
                 for column in columns:
-                    if column.coltype == Column.CHAR and trim:
+                    if column.coltype == Column.CHAR:
                         # Decode the character string from the database character set, iso-8859-1
                         row[column.colname] = data[column.colno - 1].decode(
                             encoding='iso-8859-1'
@@ -241,7 +237,18 @@ class MultibaseReader:
                         row[column.colname] = Date(data[column.colno - 1])
                     elif column.coltype == Column.TIME:
                         row[column.colname] = Time(data[column.colno - 1])
-                    else:
+                    elif column.coltype in (
+                        Column.INTEGER,
+                        Column.SMALLINT,
+                        Column.SERIAL
+                    ):
                         row[column.colname] = data[column.colno - 1]
+                    else:
+                        # Decode the character string from the database character set, iso-8859-1
+                        row[column.colname] = data[column.colno - 1].decode(
+                            encoding='iso-8859-1'
+                        )
+                        if trim:
+                            row[column.colname] = row[column.colname].strip()
                 result.append(row)
         return result
