@@ -180,6 +180,8 @@ class MultibaseReader:
         self.schema = {}
         for table_name, table_data in tables_dict.items():
             columns = []
+            if table_data["tabid"] not in columns_dict:
+                continue
             for column in columns_dict[table_data["tabid"]]:
                 columns.append(
                     Column(
