@@ -230,18 +230,19 @@ class MultibaseReader:
                 row = {}
                 data = unpack(format_string, line)
                 for column in columns:
-                    if column.coltype == Column.CHAR:
+                    coltype =column.coltype & 0xff
+                    if coltype == Column.CHAR:
                         # Decode the character string from the database character set, iso-8859-1
                         row[column.colname] = data[column.colno - 1].decode(
                             encoding='iso-8859-1'
                             ).strip()
-                    elif column.coltype == Column.DECIMAL:
+                    elif coltype == Column.DECIMAL:
                         row[column.colname] = Decimal(data[column.colno - 1], column.collength)
-                    elif column.coltype == Column.DATE:
+                    elif coltype == Column.DATE:
                         row[column.colname] = Date(data[column.colno - 1])
-                    elif column.coltype == Column.TIME:
+                    elif coltype == Column.TIME:
                         row[column.colname] = Time(data[column.colno - 1])
-                    elif column.coltype in (
+                    elif coltype in (
                         Column.INTEGER,
                         Column.SMALLINT,
                         Column.SERIAL
