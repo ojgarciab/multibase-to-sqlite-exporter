@@ -33,6 +33,9 @@ class Date(str):
     """Class that stores a date value (serializable in JSON)"""
     date = None
     def __new__(cls, days: int):
+        if days == 0x80000000:
+            cls.date = None
+            return None
         cls.date = base_date + timedelta(days=days if days < 47483 else 0)
         return str.__new__(cls, cls.date.isoformat())
 
