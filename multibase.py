@@ -43,6 +43,9 @@ class Time(str):
     """Class that stores a time value (serializable in JSON)"""
     time = None
     def __new__(cls, seconds: int):
+        if seconds == 0x80000000:
+            cls.time = None
+            return None
         cls.time = time(seconds // 3600, (seconds % 3600) // 60, seconds % 60)
         return str.__new__(cls, cls.time.isoformat())
 
@@ -236,27 +239,37 @@ class MultibaseReader:
                     coltype =column.coltype & 0xff
                     if coltype == Column.CHAR:
                         # Decode the character string from the database character set, iso-8859-1
-                        row[column.colname] = data[column.colno - 1].decode(
-                            encoding='iso-8859-1'
-                            ).strip()
+                        if len(data[column.colno - 1]) > 0 and data[column.colno - 1][0] == 0:
+                            row[column.colname] = None
+                        else:
+                            row[column.colname] = data[column.colno - 1].decode(
+                                encoding='iso-8859-1'
+                                ).strip()
                     elif coltype == Column.DECIMAL:
                         row[column.colname] = Decimal(data[column.colno - 1], column.collength)
                     elif coltype == Column.DATE:
                         row[column.colname] = Date(data[column.colno - 1])
                     elif coltype == Column.TIME:
                         row[column.colname] = Time(data[column.colno - 1])
+                    elif coltype == Column.INTEGER:
+                        if data[column.colno - 1] == -2147483648: # -0x80000000
+                            row[column.colname] = None
+                        else:
+                            row[column.colname] = data[column.colno - 1]
                     elif coltype in (
-                        Column.INTEGER,
                         Column.SMALLINT,
                         Column.SERIAL
                     ):
                         row[column.colname] = data[column.colno - 1]
                     else:
-                        # Decode the character string from the database character set, iso-8859-1
-                        row[column.colname] = data[column.colno - 1].decode(
-                            encoding='iso-8859-1'
-                        )
-                        if trim:
-                            row[column.colname] = row[column.colname].strip()
+                        if len(data[column.colno - 1]) > 0 and data[column.colno - 1][0] == 0:
+                            row[column.colname] = None
+                        else:
+                            # Decode the character string from the database character set, iso-8859-1
+                            row[column.colname] = data[column.colno - 1].decode(
+                                encoding='iso-8859-1'
+                            )
+                            if trim:
+                                row[column.colname] = row[column.colname].strip()
                 result.append(row)
         return result
