@@ -1,4 +1,4 @@
-"""Module that implements MySQL database reading."""
+"""Module that implements multibase database reading."""
 
 # pylint: disable=too-many-arguments,line-too-long
 
@@ -251,16 +251,19 @@ class MultibaseReader:
                         row[column.colname] = Date(data[column.colno - 1])
                     elif coltype == Column.TIME:
                         row[column.colname] = Time(data[column.colno - 1])
-                    elif coltype == Column.INTEGER:
+                    elif coltype in (
+                        Column.INTEGER,
+                        Column.SERIAL
+                    ):
                         if data[column.colno - 1] == -2147483648: # -0x80000000
                             row[column.colname] = None
                         else:
                             row[column.colname] = data[column.colno - 1]
-                    elif coltype in (
-                        Column.SMALLINT,
-                        Column.SERIAL
-                    ):
-                        row[column.colname] = data[column.colno - 1]
+                    elif coltype == Column.SMALLINT:
+                        if data[column.colno - 1] == -32768: # -0x8000
+                            row[column.colname] = None
+                        else:
+                            row[column.colname] = data[column.colno - 1]
                     else:
                         if len(data[column.colno - 1]) > 0 and data[column.colno - 1][0] == 0:
                             row[column.colname] = None
